@@ -1,4 +1,3 @@
-
 from rest_framework import serializers
 from .models import Genre, Book, Comment
 
@@ -16,19 +15,14 @@ class BookDetailSerializer(serializers.ModelSerializer):
 
 
 class GenreSerializer(serializers.ModelSerializer):
-    books = serializers.SerializerMethodField()
-
+    books = BookShortSerializer(source="book_set",many=True,read_only=True)
     class Meta:
         model = Genre
         fields = ["id", "name", "books"]
 
-    def get_books(self, obj):
-        return BookShortSerializer(Book.objects.filter(genre=obj),many=True).data
-
 
 class GenreDetailSerializer(serializers.ModelSerializer):
-    books = BookDetailSerializer(many=True, read_only=True, source="book_set")
-
+    books = BookDetailSerializer(source="book_set",many=True,read_only=True)
     class Meta:
         model = Genre
         fields = ["id", "name", "books"]
@@ -36,7 +30,6 @@ class GenreDetailSerializer(serializers.ModelSerializer):
 
 class BookSerializer(serializers.ModelSerializer):
     genre = GenreSerializer(read_only=True)
-
     class Meta:
         model = Book
         fields = ["id", "title", "author", "price", "genre"]

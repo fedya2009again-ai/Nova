@@ -1,12 +1,10 @@
-
 from rest_framework.viewsets import ModelViewSet
 from .models import Genre, Book, Comment
-from .serializers import GenreSerializer, GenreDetailSerializer, BookSerializer, CommentSerializer
-
+from .serializers import GenreSerializer, GenreDetailSerializer, BookSerializer, BookDetailSerializer, CommentSerializer
 
 
 class GenreModelViewSet(ModelViewSet):
-    queryset = Genre.objects.all()
+    queryset = Genre.objects.prefetch_related("book_set")
 
     def get_serializer_class(self):
         if self.kwargs.get("pk"):
@@ -15,13 +13,13 @@ class GenreModelViewSet(ModelViewSet):
 
 
 class BookModelViewSet(ModelViewSet):
-    queryset = Book.objects.all()
+    queryset = Book.objects.select_related("genre")
     serializer_class = BookSerializer
+    search_fields = ["title", "author"]
 
 
 class CommentModelViewSet(ModelViewSet):
-    queryset = Comment.objects.all()
+    queryset = Comment.objects.select_related("book", "user")
     serializer_class = CommentSerializer
-
 
 
